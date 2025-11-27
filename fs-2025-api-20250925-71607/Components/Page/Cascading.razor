@@ -1,0 +1,82 @@
+@page "/cascading"
+@rendermode InteractiveServer
+
+<h3>Cascading Demo</h3>
+
+<div class="row">
+    <select @onchange="OnContinentChanged">
+        <option value="">Choose a continent</option>
+        @foreach (var c in Continents)
+        {
+            <option value="@c">@c</option>
+        }
+    </select>
+
+    <select @onchange="OnCountryChanged" disabled="@(!Countries.Any())">
+        <option value="">Choose a country</option>
+        @foreach (var c in Countries)
+        {
+            <option value="@c">@c</option>
+        }
+    </select>
+
+    <select disabled="@(!Cities.Any())">
+        <option value="">Choose a city</option>
+        @foreach (var city in Cities)
+        {
+            <option value="@city">@city</option>
+        }
+    </select>
+</div>
+
+@code {
+    private string? selectedContinent;
+
+    private readonly Dictionary<string, Dictionary<string, List<string>>> _data = new()
+    {
+        ["Europe"] = new()
+        {
+            ["Ireland"] = new() { "Dublin", "Cork", "Galway" },
+            ["France"]  = new() { "Paris", "Lyon", "Marseille" },
+            ["Spain"]   = new() { "Madrid", "Barcelona", "Valencia" }
+        },
+        ["Americas"] = new()
+        {
+            ["Bolivia"] = new() { "Santa Cruz", "La Paz", "Cochabamba" },
+            ["USA"]     = new() { "New York", "Chicago", "Los Angeles" },
+            ["Mexico"]  = new() { "CDMX", "Guadalajara", "Monterrey" }
+        }
+    };
+
+    public List<string> Continents { get; set; } = new();
+    public List<string> Countries  { get; set; } = new();
+    public List<string> Cities     { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        Continents = _data.Keys.OrderBy(x => x).ToList();
+    }
+
+    private void OnContinentChanged(ChangeEventArgs e)
+    {
+        selectedContinent = e.Value?.ToString();
+
+        if (!string.IsNullOrEmpty(selectedContinent) && _data.ContainsKey(selectedContinent))
+            Countries = _data[selectedContinent].Keys.OrderBy(x => x).ToList();
+        else
+            Countries.Clear();
+
+        Cities.Clear();
+    }
+
+    private void OnCountryChanged(ChangeEventArgs e)
+    {
+        var selectedCountry = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedContinent)
+            && !string.IsNullOrEmpty(selectedCountry)
+            && _data[selectedContinent].TryGetValue(selectedCountry, out var cities))
+            Cities = cities;
+        else
+            Cities.Clear();
+    }
+}
