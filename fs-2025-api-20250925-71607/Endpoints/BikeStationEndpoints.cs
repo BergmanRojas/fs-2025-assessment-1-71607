@@ -7,26 +7,36 @@ public static class BikeStationEndpoints
 {
     public static void AddBikeStationEndpoints(this IEndpointRouteBuilder app)
     {
-        // Grupo principal: /api/v1/stations
-        var groupV1 = app.MapGroup("/api/v1/stations");
+        // v1 (in-memory)
+        var v1 = app.MapGroup("/api/v1/stations")
+            .WithTags("Dublin Bikes v1 (in-memory)");
 
-        // 1) Lista con filtro, búsqueda, orden y paginación
-        groupV1.MapGet("", GetStations);
+        v1.MapGet("/", GetStations);
+        v1.MapGet("/{number:int}", GetStationByNumber);
+        v1.MapGet("/summary", GetSummary);
+        v1.MapPost("/", CreateStation);
+        v1.MapPut("/{number:int}", UpdateStation);
 
-        // 2) Detalle por número de estación
-        groupV1.MapGet("/{number:int}", GetStationByNumber);
+        // v2 (Cosmos)
+        var v2 = app.MapGroup("/api/v2/stations")
+            .WithTags("Dublin Bikes v2 (Cosmos)");
 
-        // 3) Resumen agregado
-        groupV1.MapGet("/summary", GetSummary);
+        // GET /api/v2/stations
+        v2.MapGet("/", async (CosmosBikeStationService cosmosService) =>
+        {
+            var stations = await cosmosService.GetStationsAsync();
+            return Results.Ok(stations);
+        });
 
-        // 4) Crear (en memoria, usando el servicio)
-        groupV1.MapPost("", CreateStation);
-
-        // 5) Actualizar (en memoria, usando el servicio)
-        groupV1.MapPut("/{number:int}", UpdateStation);
+        // GET /api/v2/stations/{number}
+        v2.MapGet("/{number:int}", async (int number, CosmosBikeStationService cosmosService) =>
+        {
+            var station = await cosmosService.GetByNumberAsync(number);
+            return station is null ? Results.NotFound() : Results.Ok(station);
+        });
     }
 
-    // ---------- Endpoints ----------
+    // ---------- Endpoints v1 ----------
 
     // GET /api/v1/stations?q=&status=&minBikes=&sort=&dir=&page=&pageSize=
     private static IResult GetStations(
