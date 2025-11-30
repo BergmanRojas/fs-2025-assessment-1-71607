@@ -1,5 +1,6 @@
 using fs_2025_api_20250925_71607.Endpoints;
 using fs_2025_api_20250925_71607.Startup;
+using fs_2025_api_20250925_71607.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -32,6 +33,7 @@ app.AddWeatherEndPoints();
 app.AddCourseEndPoints();
 app.AddRootEndPoints();
 app.AddBookEndPoints();
+app.AddBikeStationEndpoints();
 
 // ⬇️ Montar la App de Blazor
 app.MapRazorComponents<App>()
