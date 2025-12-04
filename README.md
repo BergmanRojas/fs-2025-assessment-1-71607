@@ -43,6 +43,24 @@ The solution implements:
 
 ---
 
+##  Unit Tests
+
+The solution includes an xUnit test project: `fs_2025_api_20250925_71607.Tests`.
+
+Tests focus on the core business logic in `BikeStationService`:
+
+- Filtering by status (OPEN/CLOSED)
+- Text search using `q` (e.g. `q=park`)
+- Minimum available bikes (`minBikes`)
+- Sorting (e.g. by `bikes` desc)
+- Pagination (`page`, `pageSize`)
+- Aggregate summary via `GetSummary()`
+
+To run the tests:
+dotnet test
+
+---
+
 ## Project Structure
 
 Key folders and files:
