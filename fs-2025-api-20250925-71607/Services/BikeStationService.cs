@@ -212,5 +212,12 @@ namespace fs_2025_api_20250925_71607.Services
             _cacheVersion++;
             _cache.Remove("stations:summary");
         }
+      public BikeStationService(List<Station> stations, IMemoryCache cache)
+          {
+              _stations = stations ?? throw new ArgumentNullException(nameof(stations));
+              _cache = cache;
+          }  
+        
     }
+    
 }
